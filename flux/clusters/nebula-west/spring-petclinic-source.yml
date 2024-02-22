@@ -1,0 +1,13 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: spring-petclinic
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  secretRef:
+    name: gitlab-credentials
+  url: https://gitlab.nebula-west.k8s.lab/morrism/spring-petclinic.git
