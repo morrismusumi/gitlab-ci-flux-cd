@@ -1,0 +1,33 @@
+stages:
+  - build
+  
+build:
+  image: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+  services:
+    - name: docker:dind
+      alias: docker
+      command: [ "dockerd", "-H", "tcp://0.0.0.0:2375", "--tls=false", "--insecure-registry=YOUR_REGISTRY_URL"]
+  stage: build
+  before_script:
+    - apk add git
+    - git config --global user.email $GITLAB_USER_EMAIL
+    - git config --global user.name $GITLAB_USER_NAME
+    - git config http.sslVerify false
+    - docker login -u "gitlab-ci-token" -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  after_script:
+    - git checkout $CI_COMMIT_BRANCH
+    - CI_IMAGE_REGISTRY_NAME_TAG=$(echo $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA | sed 's/\//\\\//g')
+    - STRING="image:"
+    - sed -i "s/$STRING .*/$STRING $CI_IMAGE_REGISTRY_NAME_TAG/"  kustomize/deployment.yml
+    - git add . 
+    - git commit -m "update image tag"
+    - git push "https://${GITLAB_USER_LOGIN}:${GITLAB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" -o ci.skip
+
+  except:
+    changes:
+      - kustomize/*

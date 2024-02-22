@@ -1,0 +1,9 @@
+services:
+  spring-petclinic:
+    build:
+      context: .
+    platform: linux/amd64
+    image: spring-petclinic
+    container_name: spring-petclinic
+    ports:
+      - "8080:8080"

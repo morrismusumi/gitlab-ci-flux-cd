@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic
+spec:
+  selector:
+    app.kubernetes.io/instance: petclinic
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

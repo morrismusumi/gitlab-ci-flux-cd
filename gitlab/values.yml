@@ -1,0 +1,25 @@
+global:
+  gitlabVersion: 16.8.0
+  edition: ce
+  hosts:
+    domain: nebula-west.k8s.lab
+
+certmanager-issuer:
+  email: me@nebula-west.k8s.lab
+
+postgresql:
+  image:
+    tag: 13.6.0
+
+gitlab-runner:
+  certsSecretName: gitlab-nebula-west-k8s-lab-tls
+  runners:
+    config: |
+      [[runners]]
+        [runners.kubernetes]
+          namespace = "gitlab"
+          image = "ubuntu:22.04"
+          privileged = true
+
+certmanager:
+  install: false
